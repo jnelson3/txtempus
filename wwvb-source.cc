@@ -39,9 +39,14 @@ void WWVBTimeSignalSource::PrepareMinute(time_t t) {
   time_bits_ |= to_padded5_bcd(breakdown.tm_year % 100) << (59 - 53);
   time_bits_ |= is_leap_year(breakdown.tm_year + 1900) << (59 - 55);
 
-  // Need local time to determine DST status. TODO: announcement bits.
+  // Need local time to determine DST status.
   localtime_r(&t, &breakdown);
-  time_bits_ |= (breakdown.tm_isdst ? 0x03 : 0x00) << (59 - 58);
+  time_bits_ |= (breakdown.tm_isdst ? 0x01 : 0x00) << (59 - 58);
+  
+  // Set DST announcement bit
+  breakdown = breakdown.tm_hour + 24; // look at tomorrow
+  mktime( &breakdown); // normalize the breakdown struct
+  time_bits_ |= (breakdown.tm_isdst ? 0x01 : 0x00) << (59 - 57);
 }
 
 TimeSignalSource::SecondModulation
