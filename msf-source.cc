@@ -45,12 +45,23 @@ void MSFTimeSignalSource::PrepareMinute(time_t t) {
 
   b_bits_ = 0;
   // First couple of bits: DUT; not being set.
-  // (59 - 53): summer time warning. Not set.
   b_bits_ |= odd_parity(a_bits_, 59-24, 59-17) << (59 - 54); // Year parity
   b_bits_ |= odd_parity(a_bits_, 59-35, 59-25) << (59 - 55); // Day parity
   b_bits_ |= odd_parity(a_bits_, 59-38, 59-36) << (59 - 56); // Weekday parity
   b_bits_ |= odd_parity(a_bits_, 59-51, 59-39) << (59 - 57); // Time parity
-  b_bits_ |= breakdown.tm_isdst << (59 - 58);
+  
+  // The Summer Time bit is transmitted during the minute right before 
+  // the change is actually made to the time
+  breadkown.tm_minute += 1; //advance breakdown by 1 minute
+  mktime( &breakdown); // normalize the breakdown struct
+  
+  b_bits_ |= breakdown.tm_isdst << (59 - 58); // Summer time
+  
+  if (!breakdown.tm_isdst) { // The Summer Time Warning bit is not transmitted during Summer Time
+    breakdown.tm_hour += 1; // advance breakdown by 1 hour
+    mktime( &breakdown); // normalize the breakdown struct
+    b_bits_ |= breakdown.tm_isdst << (59-53); // Summer time warning
+  }
 }
 
 TimeSignalSource::SecondModulation
