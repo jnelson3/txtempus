@@ -40,11 +40,17 @@ void WWVBTimeSignalSource::PrepareMinute(time_t t) {
   time_bits_ |= is_leap_year(breakdown.tm_year + 1900) << (59 - 55);
 
   // Need local time to determine DST status.
-  localtime_r(&t, &breakdown);
+  // set breakdown to 0:00 UTC
+  breakdown.tm_hour = 0;
+  breakdown.tm_minute = 0;
+  breakdown.tm_second = 0;
+  mktime( &breakdown); // normalize the breakdown struct
+  //get local time at 0:00 UTC
+  localtime_r(mktime(&breakdown), &breakdown);
   time_bits_ |= (breakdown.tm_isdst ? 0x01 : 0x00) << (59 - 58);
   
   // Set DST announcement bit
-  breakdown = breakdown.tm_hour + 24; // look at tomorrow
+  breakdown.tm_hour += 24; // move to 24:00 UTC, or 0:00 UTC of the next day
   mktime( &breakdown); // normalize the breakdown struct
   time_bits_ |= (breakdown.tm_isdst ? 0x01 : 0x00) << (59 - 57);
 }
