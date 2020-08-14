@@ -42,11 +42,12 @@ void WWVBTimeSignalSource::PrepareMinute(time_t t) {
   // Need local time to determine DST status.
   // set breakdown to 0:00 UTC
   breakdown.tm_hour = 0;
-  breakdown.tm_minute = 0;
-  breakdown.tm_second = 0;
+  breakdown.tm_min = 0;
+  breakdown.tm_sec = 0;
   mktime( &breakdown); // normalize the breakdown struct
   //get local time at 0:00 UTC
-  localtime_r(mktime(&breakdown), &breakdown);
+  time_t local = mktime(&breakdown);
+  localtime_r(&local, &breakdown);
   time_bits_ |= (breakdown.tm_isdst ? 0x01 : 0x00) << (59 - 58);
   
   // Set DST announcement bit
