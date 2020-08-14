@@ -52,7 +52,7 @@ void MSFTimeSignalSource::PrepareMinute(time_t t) {
   
   // The Summer Time bit is transmitted during the minute right before 
   // the change is actually made to the time
-  breadkown.tm_minute += 1; //advance breakdown by 1 minute
+  breakdown.tm_min += 1; //advance breakdown by 1 minute
   mktime( &breakdown); // normalize the breakdown struct
   
   b_bits_ |= breakdown.tm_isdst << (59 - 58); // Summer time

@@ -46,8 +46,8 @@ void WWVBTimeSignalSource::PrepareMinute(time_t t) {
   breakdown.tm_sec = 0;
   mktime( &breakdown); // normalize the breakdown struct
   //get local time at 0:00 UTC
-  time_t local = mktime(&breakdown);
-  localtime_r(&local, &breakdown);
+  time_t midnight = mktime(&breakdown);
+  localtime_r(&midnight, &breakdown);
   time_bits_ |= (breakdown.tm_isdst ? 0x01 : 0x00) << (59 - 58);
   
   // Set DST announcement bit
