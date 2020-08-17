@@ -44,6 +44,11 @@ void DCF77TimeSignalSource::PrepareMinute(time_t t) {
   time_bits_ |= to_bcd(breakdown.tm_wday ? breakdown.tm_wday : 7) << 42;
   time_bits_ |= to_bcd(breakdown.tm_mon + 1) << 45;
   time_bits_ |= to_bcd(breakdown.tm_year % 100) << 50;
+  if (!breakdown.tm_isdst) { // The Summer Time Announcement bit is not transmitted during Summer Time
+    breakdown.tm_min += 60; // advance breakdown by 1 hour and 1 minute
+    mktime( &breakdown); // normalize the breakdown struct
+    time_bits_ |= (breakdown.tm_isdst ? 1 : 0) << 16; // Summer Time Announcement
+  }
 
   time_bits_ |= parity(time_bits_, 21, 27) << 28;
   time_bits_ |= parity(time_bits_, 29, 34) << 35;

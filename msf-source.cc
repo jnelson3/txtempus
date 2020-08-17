@@ -57,10 +57,10 @@ void MSFTimeSignalSource::PrepareMinute(time_t t) {
   
   b_bits_ |= breakdown.tm_isdst << (59 - 58); // Summer time
   
-  if (!breakdown.tm_isdst) { // The Summer Time Warning bit is not transmitted during Summer Time
-    breakdown.tm_hour += 1; // advance breakdown by 1 hour
+  if (!breakdown.tm_isdst) { // The Summer Time Announcement bit is not transmitted during Summer Time
+    breakdown.tm_min += 61; // advance breakdown by 1 hour and 1 minute
     mktime( &breakdown); // normalize the breakdown struct
-    b_bits_ |= breakdown.tm_isdst << (59-53); // Summer time warning
+    b_bits_ |= (breakdown.tm_isdst ? 1 : 0) << (59-53); // Summer Time Announcement
   }
 }
 
